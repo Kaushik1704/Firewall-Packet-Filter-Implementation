@@ -1,0 +1,39 @@
+!pip install scapy
+
+from scapy.all import sniff, IP, TCP, UDP
+BLOCKED_IP = "192.168.1.5"     # Block this IP
+BLOCKED_PORT = 80              # Block HTTP traffic
+BLOCKED_PROTOCOL = "UDP"       # Block all UDP traffic
+
+def firewall(packet):
+    """Firewall logic to allow or block packets."""
+    if packet.haslayer(IP):
+        src_ip = packet[IP].src
+        dst_ip = packet[IP].dst
+        proto = "OTHER"
+
+        # Check TCP
+        if packet.haslayer(TCP):
+            proto = "TCP"
+            sport = packet[TCP].sport
+            dport = packet[TCP].dport
+
+            if src_ip == BLOCKED_IP or dport == BLOCKED_PORT:
+                print(f"[BLOCKED] {src_ip} -> {dst_ip}:{dport} (Rule: IP/Port)")
+                return  # Drop packet (don’t forward)
+
+        # Check UDP
+        elif packet.haslayer(UDP):
+            proto = "UDP"
+            sport = packet[UDP].sport
+            dport = packet[UDP].dport
+
+            if BLOCKED_PROTOCOL == "UDP":
+                print(f"[BLOCKED] {src_ip} -> {dst_ip}:{dport} (Rule: UDP Blocked)")
+                return
+
+        # If not blocked, allow packet
+        print(f"[ALLOWED] {src_ip} -> {dst_ip} ({proto})")
+
+print("[FIREWALL STARTED] Press Ctrl+C to stop...")
+sniff(prn=firewall, store=0, count=20)
