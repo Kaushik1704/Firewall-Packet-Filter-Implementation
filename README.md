@@ -1,2 +1,2 @@
 # Firewall-Packet-Filter-Implementation
-A lightweight network monitoring tool, inspired by Wireshark, designed to capture and analyze packets traveling through a network interface.
+A simple firewall simulator that demonstrates how network packets can be filtered (allowed or blocked) based on predefined security rules.
